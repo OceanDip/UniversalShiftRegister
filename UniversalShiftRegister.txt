@@ -1,0 +1,49 @@
+--------------------------------------------------------------
+--Enrique Rosas
+--Universal Shift Register
+-- Able to perform left, right shifting and parallel load
+
+entity UniversalShift is
+generic
+	 (
+	 bit_width	: integer := 8);
+port(
+		ouput	:out std_logic_vector( data_width -1 downto 0);
+		clk 	:in std_logic;
+		reset	:in std_logic;
+		input	:in std_logic;
+		selector:in std_logic_vector(1 downto 0)
+	);
+end UniversalShift;
+
+architecture behavior of UniversalShift is
+
+signal A_reg	: std_logic_vector(data_width - 1 downto 0) := (others => '0');
+
+begin 
+	output <= A_reg;
+usr_process: process(clk)
+
+begin
+	if(rising_edge(clk)) then
+		if (reset = '1') then
+			A_reg <= (others => '0');
+			else
+				case shift 
+					when "00" => --hold
+						A_reg <= A_reg;
+					when "01" => --right shift
+						A_reg(bit_width - 1) <= '0';\
+						A_reg(bit_width - 2 downto 0) <= A_reg(bit_width - 1 downto 1);
+					when "10" => --left shift
+						A_reg(0) <= '0';
+						A_reg(data_width -1 downto 1) <= A_reg(data_width - 2 downto 0);
+					when "11" => -- parllel load
+						A_reg <= input;
+					end case;
+				end if;
+			end if;
+		end usr_process;	
+	end behavior;
+	
+	
